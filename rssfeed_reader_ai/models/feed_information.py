@@ -2,7 +2,7 @@ from db import db
 import datetime
 
 # Class for the Feed Information Table
-class FeedInfo(db.Model):
+class FeedInformation(db.Model):
     # define the source table columns
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)

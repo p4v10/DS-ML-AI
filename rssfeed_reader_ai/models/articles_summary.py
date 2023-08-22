@@ -1,7 +1,7 @@
 from db import db
 import datetime
 
-class Articles(db.Model):
+class ArticlesSummary(db.Model):
     # define articles table
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
@@ -10,7 +10,7 @@ class Articles(db.Model):
     author = db.Column(db.Text, nullable=True)
     guid = db.Column(db.String(255), nullable=False)
     unread = db.Column(db.Boolean, default=True, nullable=False)
-    source_id = db.Column(db.Integer, db.ForeignKey('feed_info.id'), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('feed_information.id'), nullable=False)
     source = db.relationship('FeedInfo', db.backref('articles', lazy=True))
     date_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_published = db.Column(db.DateTime)
