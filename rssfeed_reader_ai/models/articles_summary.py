@@ -18,3 +18,27 @@ class ArticlesSummary(db.Model):
     __table_args__ = (
         db.UniqueConstraint('source_id', 'guid', name='uc_source_guid'),
     )
+    
+    # add a decorator for a method that belong to a class FeedInformation
+    @classmethod
+
+    def insert_from_feed(cls, source_id, feed_articles):
+        # insert all articles into a table
+        statement = ArticlesSummary.__table__.insert().prefix_with('IGNORE')
+
+        articles = []
+
+        for article in feed_articles:
+            # append attributes to the articles list
+            articles.append({
+                'title': article['title'],
+                'summary': article['summary'],
+                'link': article['link'],
+                'author': article['author'],
+                'date_published': article['published'],
+                'guid': article['id'],
+                'source_id': source_id,
+            })
+        
+        # insert the articles into the db
+        db.engine.execute(statement, articles)

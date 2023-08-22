@@ -4,6 +4,8 @@ import feedparser
 def parse_feed(url):
     global parsed
 
+    url = 'https://cointelegraph.com/rss'
+
     # parse the url
     parsed = feedparser.parse(url)
     
