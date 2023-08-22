@@ -1,7 +1,7 @@
-from flask import redirect, requests
+from flask import redirect, request
 from app import app
 
-@app.route('/test', method=['GET'])
+@app.route('/test', methods=['GET'])
 
 def test_get():
     return 'Hello from Flask!'
