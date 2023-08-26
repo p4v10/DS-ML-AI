@@ -1,14 +1,25 @@
 from flask import redirect, request, abort
 from app import app
+from db import db
 from models.articles_summary import ArticlesSummary
 from models.feed_information import FeedInformation
 
 # create a index route
 @app.route('/', methods=['GET'])
 def get_index():
-    return abort(501)
+    # query object
+    query = ArticlesSummary.query
+    
+    # filter and order articles
+    query = query.filter(ArticlesSummary.unread == True)
+    query = query.order_by(ArticlesSummary.date_added.desc())
 
-@app.route('/read/<article_id>', methods=['GET'])
+    # get query results as articles
+    articles = query.all()
+
+    return str([article.title for article in articles])
+
+@app.route('/read/<int:article_id>', methods=['GET'])
 def get_read_article(article_id):
     return abort(501)
 
@@ -16,6 +27,6 @@ def get_read_article(article_id):
 def get_sources():
     return abort(501)
 
-@app.route('sources', methods=['POST'])
+@app.route('/sources', methods=['POST'])
 def post_sources():
     return abort(501)
