@@ -22,7 +22,7 @@ class FeedInformation(db.Model):
         subtitle = feed_source['subtitle']
         
         # extend with constructed source
-        source = FeedInformation(feed=feed, link=link, title=title, subtitle=subtitle)
+        source = FeedInformation(rss_feed=feed, link=link, title=title, subtitle=subtitle)
 
         # add the objects
         db.session.add(source)

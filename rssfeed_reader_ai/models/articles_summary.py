@@ -1,5 +1,7 @@
 from db import db
+from sqlalchemy.sql import text
 import datetime
+import time
 
 class ArticlesSummary(db.Model):
     # define articles table
@@ -11,7 +13,7 @@ class ArticlesSummary(db.Model):
     guid = db.Column(db.String(255), nullable=False)
     unread = db.Column(db.Boolean, default=True, nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey('feed_information.id'), nullable=False)
-    source = db.relationship('FeedInfo', backref=db.backref('articles', lazy=True))
+    source = db.relationship('FeedInformation', backref=db.backref('articles', lazy=True))
     date_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_published = db.Column(db.DateTime)
     # make sure there is no duplicate source_id + guid pair in the table
@@ -19,26 +21,35 @@ class ArticlesSummary(db.Model):
         db.UniqueConstraint('source_id', 'guid', name='uc_source_guid'),
     )
     
-    # add a decorator for a method that belong to a class FeedInformation
+    # add a decorator for a method that belong to a class ArticlesSummary
     @classmethod
 
     def insert_from_feed(cls, source_id, feed_articles):
-        # insert all articles into a table
-        statement = ArticlesSummary.__table__.insert().prefix_with('IGNORE')
-
         articles = []
 
         for article in feed_articles:
-            # append attributes to the articles list
-            articles.append({
+            # Convert struct_time to string
+            published_str = time.strftime('%Y-%m-%d %H:%M:%S', article['published'])
+            
+            # Create a dictionary of values for the INSERT query
+            article_data = {
                 'title': article['title'],
                 'summary': article['summary'],
                 'link': article['link'],
                 'author': article['author'],
-                'date_published': article['published'],
+                'date_published': datetime.datetime.strptime(published_str, '%Y-%m-%d %H:%M:%S'),  # Convert to datetime
                 'guid': article['id'],
                 'source_id': source_id,
-            })
-        
-        # insert the articles into the db
-        db.engine.execute(statement, articles)
+            }
+            
+            # Append the article data to the list
+            articles.append(article_data)
+
+        # Insert or update the articles into the db
+        for article in articles:
+            try:
+                db.session.merge(ArticlesSummary(**article))
+                db.session.commit()
+            except Exception as e:
+                print(f'Error inserting/updating data into the database: {str(e)}')
+                db.session.rollback()
